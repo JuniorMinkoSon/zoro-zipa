@@ -26,7 +26,9 @@ public class DataSeeder implements CommandLineRunner {
     @Value("${app.admin.email:admin@zorozipa.com}")
     private String adminEmail;
 
-    @Value("${app.admin.password:ChangeMe123!}")
+    // No fallback: a password written here would be public, since the repository
+    // can be read. Startup fails instead (see seedAdmin).
+    @Value("${app.admin.password:}")
     private String adminPassword;
 
     // No fallback values here on purpose: a default account whose credentials sit in
@@ -86,9 +88,20 @@ public class DataSeeder implements CommandLineRunner {
         // Exhibitions, Solo Shows, Media, Products, and Masterclasses can be managed via admin panel
     }
 
-    /** Creates the initial admin account (hashed password) if none exists yet. */
+    /**
+     * Creates the initial admin account (hashed password) if none exists yet.
+     * An empty ADMIN_PASSWORD stops the application rather than creating an account
+     * anyone could sign in to. Nothing happens when the account already exists —
+     * changing ADMIN_PASSWORD never rewrites an existing password, that is done from
+     * the Profile screen of the admin panel.
+     */
     private void seedAdmin() {
         if (users.existsByEmail(adminEmail)) return;
+
+        if (adminPassword.isBlank()) {
+            throw new IllegalStateException(
+                "ADMIN_PASSWORD doit être défini pour créer le compte administrateur initial.");
+        }
 
         users.save(User.builder()
             .name("Administrateur Zoro Zipa")
