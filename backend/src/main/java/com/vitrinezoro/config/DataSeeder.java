@@ -29,10 +29,13 @@ public class DataSeeder implements CommandLineRunner {
     @Value("${app.admin.password:ChangeMe123!}")
     private String adminPassword;
 
-    @Value("${app.user.email:user@zorozipa.com}")
+    // No fallback values here on purpose: a default account whose credentials sit in
+    // the source code is a public login for the showcase site, since the repository
+    // is readable. Same reasoning as ADMIN_PASSWORD.
+    @Value("${app.user.email:}")
     private String userEmail;
 
-    @Value("${app.user.password:User123!}")
+    @Value("${app.user.password:}")
     private String userPassword;
 
     private static String unsplash(String id) {
@@ -97,7 +100,13 @@ public class DataSeeder implements CommandLineRunner {
             .build());
     }
 
+    /**
+     * Creates the optional client account, and only when both APP_USER_EMAIL and
+     * APP_USER_PASSWORD are configured. Without them no account is created at all,
+     * rather than one anybody could guess from the source.
+     */
     private void seedClient() {
+        if (userEmail.isBlank() || userPassword.isBlank()) return;
         if (users.existsByEmail(userEmail)) return;
 
         users.save(User.builder()

@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AccessGate } from './components/AccessGate'
 import { VisitorGate } from './components/VisitorGate'
 import { ClientLayout } from './layouts/ClientLayout'
@@ -74,6 +74,9 @@ export default function App() {
           {/* Analytics */}
           <Route path="analytics" element={<AnalyticsPage />} />
         </Route>
+
+        {/* Unknown URL: send the visitor home instead of rendering nothing */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
