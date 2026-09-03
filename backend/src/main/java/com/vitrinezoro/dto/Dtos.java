@@ -2,6 +2,7 @@ package com.vitrinezoro.dto;
 
 import com.vitrinezoro.model.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -99,6 +100,18 @@ public final class Dtos {
         long artists, long artworks, long exhibitions, long visitors, long reservations,
         List<MonthlyPoint> visitorsByMonth, List<MonthlyPoint> reservationsByMonth,
         List<PopularArtwork> popularArtworks) {}
+
+    public record VisitorRequest(String firstName, String lastName, String phone) {}
+
+    public record VisitorDto(
+        Long id, String firstName, String lastName, String phone,
+        Instant createdAt, Instant lastSeenAt, long visits) {
+
+        public static VisitorDto from(Visitor v) {
+            return new VisitorDto(v.getId(), v.getFirstName(), v.getLastName(), v.getPhone(),
+                v.getCreatedAt(), v.getLastSeenAt(), v.getVisits());
+        }
+    }
 
     public record LoginRequest(String email, String password) {}
 

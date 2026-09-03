@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AccessGate } from './components/AccessGate'
+import { VisitorGate } from './components/VisitorGate'
 import { ClientLayout } from './layouts/ClientLayout'
 import { AdminLayout } from './layouts/AdminLayout'
 import { HomePage } from './pages/client/HomePage'
@@ -31,8 +32,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Unified Login - Single entry point for both client and admin */}
-        <Route element={<AccessGate><ClientLayout /></AccessGate>}>
+        {/* Public site: visitors identify themselves (name + phone), then log in */}
+        <Route element={<VisitorGate><AccessGate><ClientLayout /></AccessGate></VisitorGate>}>
           {/* Client Pages */}
           <Route path="/" element={<HomePage />} />
           <Route path="/a-propos" element={<ArtistProfilePage />} />

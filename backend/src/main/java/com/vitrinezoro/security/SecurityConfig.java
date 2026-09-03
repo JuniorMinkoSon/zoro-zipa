@@ -46,6 +46,12 @@ public class SecurityConfig {
                 // Public: visitors can submit reservations and purchase orders
                 .requestMatchers(HttpMethod.POST, "/api/reservations/**", "/api/orders/**").permitAll()
 
+                // Public: entry screen — register a visitor, read/close their own session.
+                // Listing every visitor (GET /api/visitors) stays admin-only via the rule below.
+                .requestMatchers(HttpMethod.POST, "/api/visitors").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/visitors/me").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/visitors/me").permitAll()
+
                 // Everything else (all write operations, /api/users, /api/upload, /api/stats) requires ADMIN
                 .anyRequest().hasRole("ADMIN")
             )
