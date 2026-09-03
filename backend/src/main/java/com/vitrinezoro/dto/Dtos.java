@@ -113,6 +113,13 @@ public final class Dtos {
         }
     }
 
+    /**
+     * Answer to a visitor registration: the opaque session token is returned in the
+     * body as well as in the cookie, so a browser that refuses third-party cookies
+     * (Safari, when the site and the API sit on different domains) can keep it itself.
+     */
+    public record VisitorSessionDto(String sessionToken, VisitorDto visitor) {}
+
     public record LoginRequest(String email, String password) {}
 
     public record RegisterRequest(String name, String email, String password) {}

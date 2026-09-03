@@ -2,6 +2,7 @@ package com.vitrinezoro.web;
 
 import com.vitrinezoro.dto.Dtos.VisitorDto;
 import com.vitrinezoro.dto.Dtos.VisitorRequest;
+import com.vitrinezoro.dto.Dtos.VisitorSessionDto;
 import com.vitrinezoro.model.Visitor;
 import com.vitrinezoro.repository.VisitorRepository;
 import jakarta.servlet.http.Cookie;
@@ -50,9 +51,12 @@ public class VisitorController {
     @Value("${app.visitor.cookie.same-site:Lax}")
     private String cookieSameSite;
 
+    /** Header carrying the session token when the cookie cannot be used. */
+    private static final String SESSION_HEADER = "X-Visitor-Session";
+
     /** Registers the visitor and opens their session. */
     @PostMapping
-    public ResponseEntity<VisitorDto> register(@RequestBody VisitorRequest body) {
+    public ResponseEntity<VisitorSessionDto> register(@RequestBody VisitorRequest body) {
         String firstName = required(body.firstName(), "Le prénom est obligatoire");
         String lastName = required(body.lastName(), "Le nom est obligatoire");
         String phone = normalisePhone(body.phone());
@@ -77,7 +81,7 @@ public class VisitorController {
         return ResponseEntity.status(HttpStatus.CREATED)
             .header(HttpHeaders.SET_COOKIE,
                 sessionCookie(saved.getSessionId(), Duration.ofDays(cookieMaxAgeDays)).toString())
-            .body(VisitorDto.from(saved));
+            .body(new VisitorSessionDto(saved.getSessionId(), VisitorDto.from(saved)));
     }
 
     /** Who is behind the current session cookie — 204 when there is no valid session. */
@@ -137,7 +141,18 @@ public class VisitorController {
             .build();
     }
 
+    /**
+     * The session token, taken from the header first and from the cookie otherwise.
+     * Safari and other browsers that block third-party cookies drop the cookie when
+     * the site and the API are on different domains, so the header is what keeps a
+     * returning visitor recognised there.
+     */
     private Optional<String> readSessionId(HttpServletRequest request) {
+        String header = request.getHeader(SESSION_HEADER);
+        if (header != null && !header.isBlank()) {
+            return Optional.of(header.trim());
+        }
+
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return Optional.empty();
         return Arrays.stream(cookies)
