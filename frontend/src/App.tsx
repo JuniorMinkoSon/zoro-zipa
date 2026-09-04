@@ -24,6 +24,7 @@ import { ProductManagement } from './pages/admin/ProductManagement'
 import { MasterclassManagement } from './pages/admin/MasterclassManagement'
 import { ReservationManagement } from './pages/admin/ReservationManagement'
 import { UserManagement } from './pages/admin/UserManagement'
+import { VisitorManagement } from './pages/admin/VisitorManagement'
 import { OrderManagement } from './pages/admin/OrderManagement'
 import { AnalyticsPage } from './pages/admin/AnalyticsPage'
 import { ProfileManagement } from './pages/admin/ProfileManagement'
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="orders" element={<OrderManagement />} />
           <Route path="reservations" element={<ReservationManagement />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="visitors" element={<VisitorManagement />} />
 
           {/* Analytics */}
           <Route path="analytics" element={<AnalyticsPage />} />

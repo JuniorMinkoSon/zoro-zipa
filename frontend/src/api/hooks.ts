@@ -16,6 +16,7 @@ import type {
   Stats,
   User,
 } from '../types'
+import type { Visitor } from './visitor'
 
 /** Centralized data layer: React Query hooks over the Spring Boot REST API. */
 
@@ -96,6 +97,15 @@ export const useCreateReservation = () => {
 // ---------- Users ----------
 export const useUsers = () =>
   useQuery({ queryKey: ['users'], queryFn: fetchList<User>('/users') })
+
+// ---------- Visitors (entry screen) ----------
+export const useVisitors = () =>
+  useQuery({
+    queryKey: ['visitors'],
+    queryFn: fetchList<Visitor>('/visitors'),
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
+  })
 
 // ---------- Stats ----------
 export const useStats = () =>

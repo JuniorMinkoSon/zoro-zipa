@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Image, RefreshCw, Ticket, Users } from 'lucide-react'
+import { Image, RefreshCw, Ticket, UserCheck, Users } from 'lucide-react'
 import {
   Bar,
   BarChart,
@@ -13,13 +13,15 @@ import {
 } from 'recharts'
 import { AdminHeader } from '../../components/admin/AdminHeader'
 import { StatCard } from '../../components/admin/StatCard'
-import { useStats } from '../../api/hooks'
+import { useStats, useVisitors } from '../../api/hooks'
 
 const GOLD = '#c6a15b'
 
 /** Overview: KPI tiles + visitors, popular artworks and reservations charts. */
 export function AdminDashboard() {
   const { data: stats, isLoading, refetch } = useStats()
+  // People who filled the entry screen — distinct from the reservation head count below.
+  const { data: visitors } = useVisitors()
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdate, setLastUpdate] = useState(new Date())
 
@@ -60,10 +62,16 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Œuvres" value={stats.artworks} icon={Image} delay={0.05} />
-        <StatCard label="Visiteurs" value={stats.visitors} icon={Users} delay={0.1} />
-        <StatCard label="Commandes" value={stats.reservations} icon={Ticket} delay={0.15} />
+        <StatCard
+          label="Visiteurs enregistrés"
+          value={visitors?.length ?? 0}
+          icon={UserCheck}
+          delay={0.1}
+        />
+        <StatCard label="Visiteurs attendus" value={stats.visitors} icon={Users} delay={0.15} />
+        <StatCard label="Commandes" value={stats.reservations} icon={Ticket} delay={0.2} />
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-2">

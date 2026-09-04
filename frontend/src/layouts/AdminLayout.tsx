@@ -8,6 +8,7 @@ import {
   Menu,
   ShoppingCart,
   User,
+  Users,
   X,
 } from 'lucide-react'
 import { logoutAdmin } from '../utils/auth'
@@ -31,7 +32,8 @@ const items = [
   { to: '/admin/reservations', label: 'Réservations', icon: ShoppingCart },
   { to: '/admin/users', label: 'Utilisateurs', icon: User },
 
-  // Analytics
+  // Audience
+  { to: '/admin/visitors', label: 'Visiteurs', icon: Users },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
