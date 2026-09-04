@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
-import { Download, Search } from 'lucide-react'
+import { Download, FileText, Search } from 'lucide-react'
 import { AdminHeader } from '../../components/admin/AdminHeader'
 import { DataTable } from '../../components/admin/DataTable'
 import { useVisitors } from '../../api/hooks'
 import type { Visitor } from '../../api/visitor'
+import { downloadVisitorsPdf } from '../../utils/visitorsPdf'
 
 const dateTimeFmt = new Intl.DateTimeFormat('fr-FR', {
   day: 'numeric',
@@ -44,6 +45,7 @@ function toCsv(visitors: Visitor[]): string {
 export function VisitorManagement() {
   const { data: visitors, isLoading } = useVisitors()
   const [search, setSearch] = useState('')
+  const [buildingPdf, setBuildingPdf] = useState(false)
 
   const filtered = useMemo(() => {
     const all = visitors ?? []
@@ -70,6 +72,15 @@ export function VisitorManagement() {
     URL.revokeObjectURL(url)
   }
 
+  const downloadPdf = async () => {
+    setBuildingPdf(true)
+    try {
+      await downloadVisitorsPdf(filtered, search.trim() || undefined)
+    } finally {
+      setBuildingPdf(false)
+    }
+  }
+
   return (
     <div>
       <AdminHeader
@@ -93,14 +104,25 @@ export function VisitorManagement() {
           />
         </div>
 
-        <button
-          onClick={downloadCsv}
-          disabled={filtered.length === 0}
-          className="flex items-center justify-center gap-2 rounded-full border border-gold px-4 py-2 text-sm text-gold transition-colors hover:bg-gold hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gold"
-        >
-          <Download size={15} />
-          Exporter en CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={downloadPdf}
+            disabled={filtered.length === 0 || buildingPdf}
+            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-gold px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-gold-soft disabled:opacity-40 sm:flex-none"
+          >
+            <FileText size={15} />
+            {buildingPdf ? 'Préparation…' : 'Exporter en PDF'}
+          </button>
+
+          <button
+            onClick={downloadCsv}
+            disabled={filtered.length === 0}
+            className="flex flex-1 items-center justify-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-sm text-ink/70 transition-colors hover:border-gold hover:text-gold disabled:opacity-40 sm:flex-none"
+          >
+            <Download size={15} />
+            CSV
+          </button>
+        </div>
       </div>
 
       {search && (
