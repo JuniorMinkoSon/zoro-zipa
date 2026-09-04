@@ -3,15 +3,14 @@ import { KeyRound, ShieldCheck, Trash2, X } from 'lucide-react'
 import { AdminHeader } from '../../components/admin/AdminHeader'
 import { DataTable } from '../../components/admin/DataTable'
 import { useDeleteEntity, useUpdateEntity, useUsers } from '../../api/hooks'
-import type { User, UserRole } from '../../types'
+import type { User } from '../../types'
 import { formatDate } from '../../utils/format'
 
-const roleLabels: Record<UserRole, string> = {
-  ADMIN: 'Administrateur',
-  CLIENT: 'Client',
-}
-
-/** Platform user management: roles, activation, deletion, password reset. */
+/**
+ * Administrator accounts. Since the showcase site stopped asking visitors to
+ * sign in, an account only ever means "someone who administers the platform";
+ * any CLIENT account left over grants nothing and is listed apart, to be removed.
+ */
 export function UserManagement() {
   const { data: users } = useUsers()
   const update = useUpdateEntity<User & { password?: string }>('users')
@@ -22,6 +21,9 @@ export function UserManagement() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+
+  const admins = (users ?? []).filter((u) => u.role === 'ADMIN')
+  const leftovers = (users ?? []).filter((u) => u.role !== 'ADMIN')
 
   const closePasswordModal = () => {
     setPasswordUser(null)
@@ -58,33 +60,18 @@ export function UserManagement() {
   return (
     <div>
       <AdminHeader
-        title="Gestion des utilisateurs"
-        subtitle={`${users?.length ?? 0} utilisateur(s)`}
+        title="Administrateurs"
+        subtitle={`${admins.length} compte(s) ayant accès à l'administration`}
       />
 
       <DataTable
-        rows={users ?? []}
+        rows={admins}
         rowKey={(u) => u.id}
+        emptyLabel="Aucun administrateur."
         columns={[
           { header: 'Nom', render: (u) => <span className="font-medium">{u.name}</span> },
           { header: 'Email', render: (u) => u.email },
-          {
-            header: 'Rôle',
-            render: (u) => (
-              <select
-                value={u.role}
-                onChange={(e) =>
-                  update.mutate({ id: u.id, body: { ...u, role: e.target.value as UserRole } })
-                }
-                className="rounded-full border border-ink/10 px-3 py-1 text-xs outline-none focus:border-gold"
-              >
-                {(Object.keys(roleLabels) as UserRole[]).map((r) => (
-                  <option key={r} value={r}>{roleLabels[r]}</option>
-                ))}
-              </select>
-            ),
-          },
-          { header: 'Inscription', render: (u) => formatDate(u.createdAt) },
+          { header: 'Créé le', render: (u) => formatDate(u.createdAt) },
           {
             header: 'Statut',
             render: (u) => (
@@ -122,6 +109,38 @@ export function UserManagement() {
           },
         ]}
       />
+
+      {leftovers.length > 0 && (
+        <section className="mt-10">
+          <h2 className="font-display text-lg text-ink">Anciens comptes clients</h2>
+          <p className="mb-4 mt-1 max-w-2xl text-sm text-ink/50">
+            Les visiteurs ne créent plus de compte : ils laissent leur nom et leur numéro sur
+            l'écran d'entrée. Ces comptes ne donnent plus accès à rien et peuvent être supprimés.
+          </p>
+
+          <DataTable
+            rows={leftovers}
+            rowKey={(u) => u.id}
+            columns={[
+              { header: 'Nom', render: (u) => <span className="font-medium">{u.name}</span> },
+              { header: 'Email', render: (u) => u.email },
+              { header: 'Créé le', render: (u) => formatDate(u.createdAt) },
+              {
+                header: 'Actions',
+                className: 'text-right',
+                render: (u) => (
+                  <button
+                    onClick={() => remove.mutate(u.id)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={13} /> Supprimer
+                  </button>
+                ),
+              },
+            ]}
+          />
+        </section>
+      )}
 
       {passwordUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

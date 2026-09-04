@@ -30,7 +30,7 @@ const items = [
   { to: '/admin/products', label: 'Produits', icon: ShoppingCart },
   { to: '/admin/orders', label: 'Commandes', icon: ShoppingCart },
   { to: '/admin/reservations', label: 'Réservations', icon: ShoppingCart },
-  { to: '/admin/users', label: 'Utilisateurs', icon: User },
+  { to: '/admin/users', label: 'Administrateurs', icon: User },
 
   // Audience
   { to: '/admin/visitors', label: 'Visiteurs', icon: Users },
