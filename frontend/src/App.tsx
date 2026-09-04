@@ -12,6 +12,7 @@ import { ExhibitionPage } from './pages/client/ExhibitionPage'
 import { SoloShowPage } from './pages/client/SoloShowPage'
 import { MediaPage } from './pages/client/MediaPage'
 import { ShopPage } from './pages/client/ShopPage'
+import { ReservationPage } from './pages/client/ReservationPage'
 import { MasterclassPage } from './pages/client/MasterclassPage'
 import { AdminDashboard } from './pages/admin/AdminDashboard'
 import { ArtistManagement } from './pages/admin/ArtistManagement'
@@ -48,8 +49,9 @@ export default function App() {
           <Route path="/media" element={<MediaPage />} />
           <Route path="/masterclass" element={<MasterclassPage />} />
 
-          {/* Shop */}
+          {/* Shop & booking */}
           <Route path="/shop" element={<ShopPage />} />
+          <Route path="/reservation" element={<ReservationPage />} />
         </Route>
 
         {/* Admin panel: the only place where signing in still exists */}

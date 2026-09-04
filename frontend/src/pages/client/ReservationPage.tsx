@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
 import { Check, ChevronLeft } from 'lucide-react'
-import { useCreateReservation, useExhibitions } from '../../api/hooks'
+import { useCreateReservation, useCurrentVisitor, useExhibitions } from '../../api/hooks'
 import type { Reservation } from '../../types'
 import { formatDate } from '../../utils/format'
 
@@ -28,6 +28,15 @@ export function ReservationPage() {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [ticket, setTicket] = useState<Reservation | null>(null)
+
+  // Reuse what the entry screen already collected rather than asking twice.
+  // Left editable: a visitor may book for someone else.
+  const { data: visitor } = useCurrentVisitor()
+  useEffect(() => {
+    if (!visitor) return
+    setFullName((v) => v || `${visitor.firstName} ${visitor.lastName}`)
+    setPhone((v) => v || visitor.phone)
+  }, [visitor])
 
   const exhibition = useMemo(
     () => exhibitions?.find((e) => e.id === exhibitionId),
@@ -208,6 +217,11 @@ export function ReservationPage() {
                   {visitDate && formatDate(visitDate)} à {timeSlot} · {visitors} visiteur(s)
                 </p>
               </div>
+              {visitor && (
+                <p className="text-xs text-ink/45">
+                  Nom et téléphone repris de votre arrivée sur le site. Modifiables si besoin.
+                </p>
+              )}
               <input
                 placeholder="Nom complet"
                 value={fullName}

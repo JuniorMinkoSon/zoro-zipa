@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useCurrentVisitor } from '../../api/hooks'
 import { useCartStore } from '../../stores/cartStore'
 import type { CartItem } from '../../stores/cartStore'
 
@@ -20,6 +21,19 @@ export function CheckoutModal({ items, total, onClose, onSuccess }: CheckoutModa
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const clearCart = useCartStore((s) => s.clearCart)
+
+  // The entry screen already asked for a name and a phone number: reuse them
+  // instead of making the visitor type them again. Still editable — someone may
+  // order for a friend, or fix a typo.
+  const { data: visitor } = useCurrentVisitor()
+  useEffect(() => {
+    if (!visitor) return
+    setFormData((p) => ({
+      ...p,
+      fullName: p.fullName || `${visitor.firstName} ${visitor.lastName}`,
+      phone: p.phone || visitor.phone,
+    }))
+  }, [visitor])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,6 +101,12 @@ export function CheckoutModal({ items, total, onClose, onSuccess }: CheckoutModa
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {visitor && (
+            <p className="rounded-lg bg-ivory-dim px-3 py-2 text-xs text-ink/50">
+              Nom et téléphone repris de votre arrivée sur le site. Modifiables si besoin.
+            </p>
+          )}
+
           {error && (
             <div className="rounded-lg bg-red-50 p-4 text-sm text-red-800">
               {error}

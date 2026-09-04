@@ -16,7 +16,7 @@ import type {
   Stats,
   User,
 } from '../types'
-import type { Visitor } from './visitor'
+import { fetchCurrentVisitor, type Visitor } from './visitor'
 
 /** Centralized data layer: React Query hooks over the Spring Boot REST API. */
 
@@ -99,6 +99,14 @@ export const useUsers = () =>
   useQuery({ queryKey: ['users'], queryFn: fetchList<User>('/users') })
 
 // ---------- Visitors (entry screen) ----------
+/** The visitor behind the current session — what the entry screen collected. */
+export const useCurrentVisitor = () =>
+  useQuery({
+    queryKey: ['visitor', 'me'],
+    queryFn: fetchCurrentVisitor,
+    staleTime: 5 * 60 * 1000,
+  })
+
 export const useVisitors = () =>
   useQuery({
     queryKey: ['visitors'],
