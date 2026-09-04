@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { fetchCurrentVisitor, registerVisitor } from '../api/visitor'
 
 /**
  * First screen of the showcase site: the visitor gives their name and phone
- * number once, the backend stores it and returns a session cookie. On later
- * visits the cookie is enough and this screen never shows again.
+ * number once, and is then sent to the home page. There is no account and no
+ * password — on later visits the session is enough and this screen never shows
+ * again.
  */
 export function VisitorGate({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate()
   const [checking, setChecking] = useState(true)
   const [identified, setIdentified] = useState(false)
 
@@ -45,6 +48,7 @@ export function VisitorGate({ children }: { children: React.ReactNode }) {
     try {
       await registerVisitor({ firstName, lastName, phone })
       setIdentified(true)
+      navigate('/', { replace: true })
     } catch (err: any) {
       setError(err?.response?.data?.message ?? "Une erreur est survenue, réessaie")
     } finally {

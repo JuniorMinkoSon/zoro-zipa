@@ -32,8 +32,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public site: visitors identify themselves (name + phone), then log in */}
-        <Route element={<VisitorGate><AccessGate><ClientLayout /></AccessGate></VisitorGate>}>
+        {/* Public site: visitors only identify themselves (name + phone) — no account */}
+        <Route element={<VisitorGate><ClientLayout /></VisitorGate>}>
           {/* Client Pages */}
           <Route path="/" element={<HomePage />} />
           <Route path="/a-propos" element={<ArtistProfilePage />} />
@@ -51,8 +51,8 @@ export default function App() {
           <Route path="/shop" element={<ShopPage />} />
         </Route>
 
-        {/* Admin Panel */}
-        <Route path="/admin" element={<AccessGate adminMode><AdminLayout /></AccessGate>}>
+        {/* Admin panel: the only place where signing in still exists */}
+        <Route path="/admin" element={<AccessGate><AdminLayout /></AccessGate>}>
           <Route index element={<AdminDashboard />} />
           <Route path="profil" element={<ProfileManagement />} />
 

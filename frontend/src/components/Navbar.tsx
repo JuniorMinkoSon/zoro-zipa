@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Command, Heart, LogOut, Menu, Search, X, ChevronDown } from 'lucide-react'
+import { Command, Heart, Menu, Search, X, ChevronDown } from 'lucide-react'
 import { useFavorites } from '../store/favorites'
 import { useQuickSearch } from '../store/quickSearch'
-import { logoutSite } from '../utils/auth'
 
 const mainLinks = [
   { to: '/', label: 'Accueil' },
@@ -130,15 +129,6 @@ export function Navbar() {
           >
             {shopLink.label}
           </Link>
-
-          <button
-            onClick={logoutSite}
-            aria-label="Se déconnecter"
-            title="Se déconnecter"
-            className="flex items-center gap-1.5 text-sm text-ivory/50 transition-colors hover:text-gold"
-          >
-            <LogOut size={16} />
-          </button>
         </nav>
 
         <button
@@ -198,13 +188,6 @@ export function Navbar() {
               >
                 Shop
               </NavLink>
-              <button
-                onClick={logoutSite}
-                className="flex items-center gap-2 py-2 text-sm text-ivory/50 hover:text-gold"
-              >
-                <LogOut size={15} />
-                Se déconnecter
-              </button>
             </div>
           </motion.nav>
         )}

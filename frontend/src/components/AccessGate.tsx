@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login, isAuthenticated } from '../api/auth'
 
-interface AccessGateProps {
-  children: React.ReactNode
-  adminMode?: boolean
-}
-
-export function AccessGate({ children, adminMode = false }: AccessGateProps) {
+/**
+ * Sign-in screen for the admin panel. The public site has no accounts at all:
+ * visitors only leave their name and phone on the entry screen (VisitorGate),
+ * so this gate guards /admin and nothing else.
+ */
+export function AccessGate({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const [hasAccess, setHasAccess] = useState(false)
   const [email, setEmail] = useState('')
@@ -17,11 +17,9 @@ export function AccessGate({ children, adminMode = false }: AccessGateProps) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Admin area requires the ADMIN role specifically; the public site just
-    // requires any authenticated account (admin or client).
-    setHasAccess(adminMode ? isAuthenticated('ADMIN') : isAuthenticated())
+    setHasAccess(isAuthenticated('ADMIN'))
     setLoading(false)
-  }, [adminMode])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,26 +29,19 @@ export function AccessGate({ children, adminMode = false }: AccessGateProps) {
     try {
       const user = await login(email, password)
 
-      if (user.role === 'ADMIN') {
-        // Admin accounts always land on the dashboard, whichever login form was used.
-        navigate('/admin')
+      if (user.role !== 'ADMIN') {
+        // Only administrators have anything to do here — anyone else belongs
+        // on the showcase site, which needs no account.
+        setError("Ce compte n'a pas accès à l'administration")
         return
       }
 
-      if (adminMode) {
-        // A non-admin account tried to log in on the /admin form — send them
-        // straight to the public showcase site instead.
-        window.location.href = '/'
-        return
-      }
-
-      // Client account logging in from the site — stay on the showcase site.
       setHasAccess(true)
+      navigate('/admin')
     } catch (err: any) {
       const status = err?.response?.status
       if (status === 401) setError('Email ou mot de passe incorrect')
-      else if (status === 409) setError('Cet email est déjà utilisé')
-      else setError("Une erreur est survenue, réessaie")
+      else setError('Une erreur est survenue, réessaie')
     } finally {
       setSubmitting(false)
     }
@@ -64,9 +55,7 @@ export function AccessGate({ children, adminMode = false }: AccessGateProps) {
         <div className="w-full max-w-md px-6">
           <div className="text-center mb-12">
             <h1 className="font-display text-5xl text-gold mb-2">Zoro Zipa</h1>
-            <p className="text-ivory/60 text-sm">
-              {adminMode ? 'Portail Administration' : 'Portfolio Privé'}
-            </p>
+            <p className="text-ivory/60 text-sm">Portail Administration</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -110,15 +99,6 @@ export function AccessGate({ children, adminMode = false }: AccessGateProps) {
               {submitting ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
-
-
-          {!adminMode && (
-            <div className="mt-8 text-center">
-              <p className="text-ivory/40 text-xs">
-                Portfolio Officiel de Zoro Zipa
-              </p>
-            </div>
-          )}
         </div>
       </div>
     )
